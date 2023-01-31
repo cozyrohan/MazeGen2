@@ -2,7 +2,7 @@ import pygame
 
 
 
-GRID_X, GRID_Y =  5,5
+GRID_X, GRID_Y =  10,10
 
 
 

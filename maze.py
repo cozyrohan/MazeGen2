@@ -40,14 +40,12 @@ MOVES_DICT = {
 
 
 def do_bfs(grid_x_squares, grid_y_squares):
-    start_x, start_y = 1,1
-    bfs.do_bfs(grid_x_squares, grid_y_squares)
     return [m for m in bfs.do_bfs(grid_x_squares, grid_y_squares)]
         
 
 
-def draw_maze(grid_start_x, grid_start_y, maze_width, maze_height):
-    maze = do_bfs(gridManager.GRID_X, gridManager.GRID_Y)
+def maze_rectangles(maze, grid_start_x, grid_start_y, maze_width, maze_height):
+    #maze = do_bfs(gridManager.GRID_X, gridManager.GRID_Y)
     for x,y,dir in maze:
         w,h = int(maze_width/gridManager.GRID_X), int(maze_height/gridManager.GRID_Y)
         r = MOVES_DICT[dir](grid_start_x + (x * w) , grid_start_y + (y * h) , w - 2, h - 2)
@@ -55,45 +53,80 @@ def draw_maze(grid_start_x, grid_start_y, maze_width, maze_height):
     
 
 
-
-
-if __name__ == '__main__':
+def intialize_drawing(window_px_x, window_px_y ):
     print('Welcome to the maze generator/solver.')
     pygame.init()
 
-    screen = pygame.display.set_mode((400, 400), pygame.RESIZABLE)
-    screen.fill(PURPLE)
+    screen = pygame.display.set_mode((window_px_x, window_px_y), pygame.RESIZABLE)
 
     maze_backdrop = activeBG.init_maze_bg_rect(400, 400)
     
-    running = True
-    drawn = False
-    while running:
-        screen.fill(DESERT_TAN)
+    maze  = do_bfs(gridManager.GRID_X, gridManager.GRID_Y)
 
-        WINDOW_WIDTH, WINDOW_HEIGHT =  screen.get_size()
+    return (screen, maze_backdrop, maze)
+
+
+def resize_graphic(maze):
+    screen.fill(DESERT_TAN)
+
+    WINDOW_WIDTH, WINDOW_HEIGHT =  screen.get_size()
         
-        grid_start_x, grid_start_y, backdrop_width, backdrop_height = activeBG.update_maze_bg_rect(maze_backdrop, WINDOW_WIDTH, WINDOW_HEIGHT)
-        pygame.draw.rect(screen, DESERT_TAN, maze_backdrop) 
-        
+    grid_start_x, grid_start_y, backdrop_width, backdrop_height = activeBG.update_maze_bg_rect(maze_backdrop, WINDOW_WIDTH, WINDOW_HEIGHT)
+    pygame.draw.rect(screen, DESERT_TAN, maze_backdrop) 
 
-
-
-        for sq in gridManager.make_grid(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
+    #redraw the grid
+    for sq in gridManager.make_grid(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
             pygame.draw.rect(screen, PURPLE, sq, width=1 ) 
+    #redraw the grid border
+    for sq in gridManager.make_wall_border(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
+        pygame.draw.rect(screen, PURPLE, sq) 
+    #redraw the maze rectangles
+    for r in maze_rectangles(maze, grid_start_x, grid_start_y, backdrop_width, backdrop_height):
+        pygame.draw.rect(screen, DESERT_TAN, r) 
 
-        for sq in gridManager.make_wall_border(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
-            pygame.draw.rect(screen, PURPLE, sq) 
-       # if drawn == False: #not drawn:
-        for sq in draw_maze(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
-            pygame.draw.rect(screen, DESERT_TAN, sq) 
+def initial_draw_maze(maze):
+    screen.fill(DESERT_TAN)
+
+    WINDOW_WIDTH, WINDOW_HEIGHT =  screen.get_size()
+        
+    grid_start_x, grid_start_y, backdrop_width, backdrop_height = activeBG.update_maze_bg_rect(maze_backdrop, WINDOW_WIDTH, WINDOW_HEIGHT)
+    pygame.draw.rect(screen, DESERT_TAN, maze_backdrop) 
+
+    #redraw the grid
+    for sq in gridManager.make_grid(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
+            pygame.draw.rect(screen, PURPLE, sq, width=1 ) 
+    #redraw the grid border
+    for sq in gridManager.make_wall_border(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
+        pygame.draw.rect(screen, PURPLE, sq) 
+    #redraw the maze rectangles
+    pygame.display.update()
+    return maze_rectangles(maze, grid_start_x, grid_start_y, backdrop_width, backdrop_height)
+       
+        
+
+if __name__ == '__main__':
+    
+
+    screen, maze_backdrop, maze = intialize_drawing(400,400)
+    pygame.display.flip()
+
+    displaying_maze = True
+    drawing_maze = True
+    pygame.time.wait(1000)
+    m = initial_draw_maze(maze)
+    pygame.display.flip()
+    while drawing_maze:
+        for item in m:
+            print('in the loop')
+            pygame.draw.rect(screen, DESERT_TAN, item)
+            pygame.time.delay(10)
             pygame.display.update()
-            pygame.time.wait(10)
-            drawn = True
-        #else:
-        #    for sq in draw_maze(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
-        #        pygame.draw.rect(screen, DESERT_TAN, sq) 
+        pygame.display.update()
+        
 
+    while displaying_maze:
+        
+        resize_graphic(maze)
         pygame.display.update()
 
         for event in pygame.event.get():
