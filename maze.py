@@ -84,15 +84,16 @@ if __name__ == '__main__':
 
         for sq in gridManager.make_wall_border(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
             pygame.draw.rect(screen, PURPLE, sq) 
-       # if drawn == False: #not drawn:
-        for sq in draw_maze(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
-            pygame.draw.rect(screen, DESERT_TAN, sq) 
-            pygame.display.update()
-            pygame.time.wait(10)
-            drawn = True
-        #else:
-        #    for sq in draw_maze(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
-        #        pygame.draw.rect(screen, DESERT_TAN, sq) 
+        if drawn == False: #not drawn:
+            print("fasls reached")
+            for sq in draw_maze(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
+                pygame.draw.rect(screen, DESERT_TAN, sq) 
+                pygame.display.update()
+                pygame.time.wait(10)
+                drawn = True
+        else:
+            for sq in draw_maze(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
+                pygame.draw.rect(screen, DESERT_TAN, sq) 
 
         pygame.display.update()
 
