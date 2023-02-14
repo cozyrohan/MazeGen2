@@ -1,13 +1,14 @@
 import pygame
+from math import ceil
 
 
-
-GRID_X, GRID_Y =  20,20
+GRID_X, GRID_Y =  10,10
 
 
 
 def make_grid(px, py, rect_width, rect_height):
     square_side = int(rect_width/GRID_X)
+    print("square_side, ", square_side) 
     for i in range(GRID_X):
         for j in range(GRID_Y):
             r = pygame.Rect(px+(i*square_side)-1, py+(square_side*j)-1, square_side, square_side)

@@ -1,10 +1,11 @@
 import pygame
-import sys
-from math import floor
+
 import bfs
+import randomPrims
 
 import activeBG
 import gridManager
+
 
 PURPLE = (58,51,100)
 BLACK = (0,0,0)
@@ -41,13 +42,23 @@ MOVES_DICT = {
 
 def do_bfs(grid_x_squares, grid_y_squares):
     start_x, start_y = 1,1
-    bfs.do_bfs(grid_x_squares, grid_y_squares)
+    #bfs.do_bfs(grid_x_squares, grid_y_squares)
     return [m for m in bfs.do_bfs(grid_x_squares, grid_y_squares)]
-        
 
-
-def draw_maze(grid_start_x, grid_start_y, maze_width, maze_height):
+def draw_maze_using_bfs(grid_start_x, grid_start_y, maze_width, maze_height):
     maze = do_bfs(gridManager.GRID_X, gridManager.GRID_Y)
+    for x,y,dir in maze:
+        w,h = int(maze_width/gridManager.GRID_X), int(maze_height/gridManager.GRID_Y)
+        r = MOVES_DICT[dir](grid_start_x + (x * w) , grid_start_y + (y * h) , w - 2, h - 2)
+        yield r       
+
+def do_random_prims(grid_x_squares, grid_y_squares):
+    start_x, start_y = 1,1
+    #randomPrims.do_randomPrims(grid_x_squares, grid_y_squares)
+    return [m for m in randomPrims.do_prims(grid_x_squares, grid_y_squares)]
+        
+def draw_maze_using_prims(grid_start_x, grid_start_y, maze_width, maze_height, maze = None):
+    #maze = do_random_prims(gridManager.GRID_X, gridManager.GRID_Y)
     for x,y,dir in maze:
         w,h = int(maze_width/gridManager.GRID_X), int(maze_height/gridManager.GRID_Y)
         r = MOVES_DICT[dir](grid_start_x + (x * w) , grid_start_y + (y * h) , w - 2, h - 2)
@@ -56,18 +67,18 @@ def draw_maze(grid_start_x, grid_start_y, maze_width, maze_height):
 
 
 
-
 if __name__ == '__main__':
     print('Welcome to the maze generator/solver.')
     pygame.init()
 
-    screen = pygame.display.set_mode((400, 400), pygame.RESIZABLE)
+    screen = pygame.display.set_mode((800, 800), pygame.RESIZABLE)
     screen.fill(PURPLE)
 
-    maze_backdrop = activeBG.init_maze_bg_rect(400, 400)
+    maze_backdrop = activeBG.init_maze_bg_rect(800, 800)
     
     running = True
     drawn = False
+    mz = do_random_prims(gridManager.GRID_X, gridManager.GRID_Y)
     while running:
         screen.fill(DESERT_TAN)
 
@@ -76,7 +87,9 @@ if __name__ == '__main__':
         grid_start_x, grid_start_y, backdrop_width, backdrop_height = activeBG.update_maze_bg_rect(maze_backdrop, WINDOW_WIDTH, WINDOW_HEIGHT)
         pygame.draw.rect(screen, DESERT_TAN, maze_backdrop) 
         
-
+        print("grid_start_x, grid_start_y,",  grid_start_x, grid_start_y, 
+              "WINDOW_WIDTH, WINDOW_HEIGHT",  WINDOW_WIDTH, WINDOW_HEIGHT,
+              "backdrop_width, backdrop_height",  backdrop_width, backdrop_height)
 
 
         for sq in gridManager.make_grid(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
@@ -84,16 +97,12 @@ if __name__ == '__main__':
 
         for sq in gridManager.make_wall_border(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
             pygame.draw.rect(screen, PURPLE, sq) 
-        if drawn == False: #not drawn:
-            print("fasls reached")
-            for sq in draw_maze(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
-                pygame.draw.rect(screen, DESERT_TAN, sq) 
-                pygame.display.update()
-                pygame.time.wait(10)
-                drawn = True
-        else:
-            for sq in draw_maze(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
-                pygame.draw.rect(screen, DESERT_TAN, sq) 
+
+        for sq in draw_maze_using_prims(grid_start_x, grid_start_y, backdrop_width, backdrop_height, maze = mz):
+            pygame.draw.rect(screen, DESERT_TAN, sq) 
+            pygame.display.update()
+            pygame.time.wait(4)
+            drawn = True
 
         pygame.display.update()
 
