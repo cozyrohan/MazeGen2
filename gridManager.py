@@ -2,7 +2,7 @@ import pygame
 from math import ceil
 
 
-GRID_X, GRID_Y =  10,10
+GRID_X, GRID_Y =  100,100
 
 
 
