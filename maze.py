@@ -16,8 +16,6 @@ WHITE = (255,255,255)
 
 
 
-
-
 #Rectangle Constants
 
 def get_uptangle(x,y, width, height):
@@ -40,41 +38,25 @@ MOVES_DICT = {
 }
 
 
-def do_bfs(grid_x_squares, grid_y_squares):
-    start_x, start_y = 1,1
-    #bfs.do_bfs(grid_x_squares, grid_y_squares)
-    return [m for m in bfs.do_bfs(grid_x_squares, grid_y_squares)]
+def do_bfs():
+    return [m for m in bfs.do_bfs()]
 
-def draw_maze_using_bfs(grid_start_x, grid_start_y, maze_width, maze_height):
-    maze = do_bfs(gridManager.GRID_X, gridManager.GRID_Y)
-    for x,y,dir in maze:
-        w,h = int(maze_width/gridManager.GRID_X), int(maze_height/gridManager.GRID_Y)
-        r = MOVES_DICT[dir](grid_start_x + (x * w) , grid_start_y + (y * h) , w - 2, h - 2)
-        yield r       
+def solve_bfs():
+    pass
 
-def do_random_prims(grid_x_squares, grid_y_squares):
-    start_x, start_y = 1,1
-    #randomPrims.do_randomPrims(grid_x_squares, grid_y_squares)
-    return [m for m in randomPrims.do_prims(grid_x_squares, grid_y_squares)]
-
-
-def draw_maze_using_prims(grid_start_x, grid_start_y, maze_width, maze_height, maze = None):
-    #maze = do_random_prims(gridManager.GRID_X, gridManager.GRID_Y)
-    for x,y,dir in maze:
-        w,h = int(maze_width/gridManager.GRID_X), int(maze_height/gridManager.GRID_Y)
-        r = MOVES_DICT[dir](grid_start_x + (x * w) , grid_start_y + (y * h) , w - 2, h - 2)
-        yield r
-
+### FUNCTIONS FOR MAKING AND SOLVING A PRIMS MAZE ###
+def do_random_prims():
+    return randomPrims.do_prims()
 def solve_random_prims():
     return randomPrims.maze_solve()
+### FUNCTIONS FOR MAKING AND SOLVING A PRIMS MAZE ###
 
-def draw_maze_solution(grid_start_x, grid_start_y, maze_width, maze_height, solution):
-    for x, y, dir in solution:
+def gen_rects(grid_start_x, grid_start_y, maze_width, maze_height, figure = None):
+    for x, y, dir in figure:
         if dir == 'X' : break
         w,h = int(maze_width/gridManager.GRID_X), int(maze_height/gridManager.GRID_Y)
         r = MOVES_DICT[dir](grid_start_x + (x * w) , grid_start_y + (y * h) , w - 2, h - 2)
-        yield r   
-    
+        yield r  
 
 def start_pygame():
     print('Welcome to the maze generator/solver.')
@@ -84,13 +66,40 @@ def start_pygame():
     maze_backdrop = activeBG.init_maze_bg_rect(800, 800)
     pygame.display.update()
     return screen, maze_backdrop
-    
+
+def draw_grid(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
+        for sq in gridManager.make_grid(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
+            pygame.draw.rect(screen, PURPLE, sq, width=1 ) 
+        for sq in gridManager.make_wall_border(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
+            pygame.draw.rect(screen, PURPLE, sq) 
+
+def draw_rects(rect_gen_function, *args_to_function, delay = None, step = False, color = None ):
+    for sq in rect_gen_function(*args_to_function):
+            pygame.draw.rect(screen, color, sq) 
+            if step: 
+                pygame.display.update()
+                pygame.time.wait(delay)
+
+
 if __name__ == '__main__':
     screen, maze_backdrop = start_pygame()
     running = True
     drawn = False
-    mz = do_random_prims(gridManager.GRID_X, gridManager.GRID_Y)
-    solution_path = solve_random_prims()
+
+    # The maze we want to generate and draw
+    MAZE = do_bfs() 
+    print("maze generated")
+
+    # The solution to aformentioned maze
+    SOLUTION = solve_random_prims()                        
+    print("maze solved")
+
+
+
+
+    # Begin the pygame loop
+    print("rendering graphics...")
+
     while running:
 
         WINDOW_WIDTH, WINDOW_HEIGHT =  screen.get_size()
@@ -103,30 +112,18 @@ if __name__ == '__main__':
 
 
         screen.fill(DESERT_TAN)
-        #if not drawn:
-        for sq in gridManager.make_grid(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
-            pygame.draw.rect(screen, PURPLE, sq, width=1 ) 
-        pygame.display.update()
-        pygame.time.wait(1000)
-        for sq in gridManager.make_wall_border(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
-            pygame.draw.rect(screen, PURPLE, sq) 
-        pygame.display.update()
-        pygame.time.wait(1000)
-
-        for sq in list(draw_maze_using_prims(grid_start_x, grid_start_y, backdrop_width, backdrop_height, maze = mz)):
-            pygame.draw.rect(screen, DESERT_TAN, sq) 
-            #print("drew a rect")
-            pygame.display.update()
-            pygame.time.wait(4)
-
-        for sq in draw_maze_solution(grid_start_x, grid_start_y, backdrop_width, backdrop_height, solution = solution_path):
-            pygame.draw.rect(screen, LIGHT_GREEN, sq) 
-            pygame.display.update()
-            pygame.time.wait(4)
+        draw_grid(grid_start_x, grid_start_y, backdrop_width, backdrop_height)
+        draw_rects( gen_rects,
+                    grid_start_x, grid_start_y, backdrop_width, backdrop_height, MAZE, 
+                    step=True, delay=2, color = DESERT_TAN)
+        draw_rects( gen_rects,
+                    grid_start_x, grid_start_y, backdrop_width, backdrop_height, SOLUTION, 
+                    step=True, delay=10, color = LIGHT_GREEN )
+        
+        pygame.time.wait(7000)
 
         
-            drawn = True
-
+        drawn = True
 
         for event in pygame.event.get():
                 if event.type == pygame.QUIT:
