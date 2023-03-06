@@ -1,48 +1,23 @@
 import pygame
 
+#maze algo generators
 import bfs
 import randomPrims
 
+
+#other components
 import activeBG
 import gridManager
+from rectSelect import MOVES_DICT, PURPLE, BLACK, DESERT_TAN, LIGHT_GREEN, END_RED, WHITE
 
 
-PURPLE = (58,51,100)
-BLACK = (0,0,0)
-DESERT_TAN = (255,238,221)
-LIGHT_GREEN = (204,255,229)
-END_RED = (255,12,12)
-WHITE = (255,255,255)
-
-
-
-#Rectangle Constants
-
-def get_uptangle(x,y, width, height):
-    return pygame.Rect(x,y-height, width, 2*height)
-
-def get_downtangle(x, y, width, height):
-    return pygame.Rect(x,y, width, 2*height)
-
-def get_rightangle(x, y, width, height):
-    return pygame.Rect(x,y, 2*width, height)
-
-def get_leftangle(x, y, width, height):
-    return pygame.Rect(x-width, y, 2*width, height)
-
-MOVES_DICT = {
-    'N':get_uptangle,
-    'S':get_downtangle,
-    'E':get_rightangle,
-    'W':get_leftangle
-}
-
-
+### FUNCTIONS FOR MAKING AND SOLVING A PRIMS MAZE ###
 def do_bfs():
     return [m for m in bfs.do_bfs()]
-
 def solve_bfs():
     pass
+### FUNCTIONS FOR MAKING AND SOLVING A PRIMS MAZE ###
+
 
 ### FUNCTIONS FOR MAKING AND SOLVING A PRIMS MAZE ###
 def do_random_prims():
@@ -52,6 +27,10 @@ def solve_random_prims():
 ### FUNCTIONS FOR MAKING AND SOLVING A PRIMS MAZE ###
 
 def gen_rects(grid_start_x, grid_start_y, maze_width, maze_height, figure = None):
+    '''
+        Generate the rectangles in 'figure':
+        Confined in the bounds starting at x,y to x + maze_width, y + maze_height
+    '''
     for x, y, dir in figure:
         if dir == 'X' : break
         w,h = int(maze_width/gridManager.GRID_X), int(maze_height/gridManager.GRID_Y)
@@ -73,8 +52,8 @@ def draw_grid(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
         for sq in gridManager.make_wall_border(grid_start_x, grid_start_y, backdrop_width, backdrop_height):
             pygame.draw.rect(screen, PURPLE, sq) 
 
-def draw_rects(rect_gen_function, *args_to_function, delay = None, step = False, color = None ):
-    for sq in rect_gen_function(*args_to_function):
+def draw_rects(*bounds, figure = None, delay = None, step = False, color = None ):
+    for sq in gen_rects(*bounds, figure):
             pygame.draw.rect(screen, color, sq) 
             if step: 
                 pygame.display.update()
@@ -113,12 +92,10 @@ if __name__ == '__main__':
 
         screen.fill(DESERT_TAN)
         draw_grid(grid_start_x, grid_start_y, backdrop_width, backdrop_height)
-        draw_rects( gen_rects,
-                    grid_start_x, grid_start_y, backdrop_width, backdrop_height, MAZE, 
-                    step=True, delay=2, color = DESERT_TAN)
-        draw_rects( gen_rects,
-                    grid_start_x, grid_start_y, backdrop_width, backdrop_height, SOLUTION, 
-                    step=True, delay=10, color = LIGHT_GREEN )
+        draw_rects(grid_start_x, grid_start_y, backdrop_width, backdrop_height,
+                    figure=MAZE, step=True, delay=20, color=DESERT_TAN)
+        draw_rects(grid_start_x, grid_start_y, backdrop_width, backdrop_height, 
+                   figure=SOLUTION, step=True, delay=20, color=LIGHT_GREEN )
         
         pygame.time.wait(7000)
 
