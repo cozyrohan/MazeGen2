@@ -6,7 +6,7 @@ Basically looking like a BFS.
 '''
 
 from gridManager import Grid, GridSpace, GRID_X, GRID_Y
-from moves import ALL_DIRS, OPPOSITE
+from moves import ALL_DIRS, ALL_DIRS_DICT, OPPOSITE
 
 from random import shuffle
 
@@ -25,8 +25,11 @@ def do_bfs():
 
         #visit to a frontier
         grid.space_at(cur_x, cur_y).set_status('visited')
-        if old_dir != 'X': maze.append( (cur_x , cur_y, old_dir) )
 
+        if old_dir != 'X': 
+            grid.space_at(cur_x, cur_y).set_rect_dir(old_dir)
+
+            maze.append( (cur_x , cur_y, old_dir) )
 
 
         #STEP 1: QUEUE the children of the cur (if they are unvizited)
@@ -40,20 +43,29 @@ def do_bfs():
 
             if  grid.square_unvisited(next_x, next_y): #and (next_x, next_y, old_dir) not in frontier_structure:
                 
+                # OK the opposite direction is opted for because we want the first step from (1,1) to be random
+                # so go from the second square back to (1,1)
                 frontier_structure.append((next_x, next_y, OPPOSITE[dir]))
                 grid.space_at(next_x, next_y).set_status('frontier')
+
                 #print(cur_x, cur_y, dir)
         
-        #make da move 
-        #grid.space_at(next_x, next_y).set_status('visited')
-        #status[cur_y][cur_x] = 1
 
-        #for row in status:
-        #    print(row)
-        #print('\n\n')
     return maze
 
-        
+def maze_solve():
+    #print("solving maze")
+    path = []
+    cur_space = grid.space_at(GRID_X-2, GRID_Y-2,)
+    #print("BTR is: ", cur_space.get_backtrack_rect())
+    while(True):
+        path.append(cur_space.get_backtrack_rect())
+        dir = cur_space.get_rect_dir()
+        if dir == 'X': break
+        next_x, next_y = ALL_DIRS_DICT[dir](cur_space.x_coord, cur_space.y_coord)
+        cur_space = grid.space_at(next_x,next_y)
+    return path
+
    
     
 
@@ -61,6 +73,9 @@ def do_bfs():
 if __name__ == '__main__':
     s = do_bfs()
     print("DONE")
-    for row in s:
-        print(row)
+    for step in s:
+        print(step)
+    grid.print_status()
+    p = maze_solve()
+    print(p)
     

@@ -2,7 +2,14 @@ import pygame
 from math import ceil
 
 
-GRID_X, GRID_Y =  20,20
+GRID_X, GRID_Y =  5,5
+
+def set_grid_dimensions(x, y):
+    global GRID_X
+    global GRID_Y
+    GRID_X = x 
+    GRID_Y = y
+    print(" in set_grid_dimensions x,y: ",GRID_X, GRID_Y)
 
 
 class GridSpace:

@@ -11,12 +11,12 @@ import gridManager
 from rectSelect import MOVES_DICT, PURPLE, BLACK, DESERT_TAN, LIGHT_GREEN, END_RED, WHITE
 
 
-### FUNCTIONS FOR MAKING AND SOLVING A PRIMS MAZE ###
+### FUNCTIONS FOR MAKING AND SOLVING A BFS MAZE ###
 def do_bfs():
-    return [m for m in bfs.do_bfs()]
+    return bfs.do_bfs()
 def solve_bfs():
-    pass
-### FUNCTIONS FOR MAKING AND SOLVING A PRIMS MAZE ###
+    return bfs.maze_solve()
+### FUNCTIONS FOR MAKING AND SOLVING A BFS MAZE ###
 
 
 ### FUNCTIONS FOR MAKING AND SOLVING A PRIMS MAZE ###
@@ -61,24 +61,29 @@ def draw_rects(*bounds, figure = None, delay = None, step = False, color = None 
 
 
 if __name__ == '__main__':
+
+
     screen, maze_backdrop = start_pygame()
+
     running = True
     drawn = False
+    gridManager.set_grid_dimensions(10,10)
+    print("in maze.py x,y: ", gridManager.GRID_X, gridManager.GRID_Y)
 
     # The maze we want to generate and draw
     MAZE = do_bfs() 
     print("maze generated")
 
     # The solution to aformentioned maze
-    SOLUTION = solve_random_prims()                        
+    SOLUTION = solve_bfs()                    
     print("maze solved")
+
 
 
 
 
     # Begin the pygame loop
     print("rendering graphics...")
-
     while running:
 
         WINDOW_WIDTH, WINDOW_HEIGHT =  screen.get_size()
@@ -92,10 +97,11 @@ if __name__ == '__main__':
 
         screen.fill(DESERT_TAN)
         draw_grid(grid_start_x, grid_start_y, backdrop_width, backdrop_height)
+
         draw_rects(grid_start_x, grid_start_y, backdrop_width, backdrop_height,
-                    figure=MAZE, step=True, delay=20, color=DESERT_TAN)
+                    figure=MAZE, step=True, delay=10, color=DESERT_TAN)
         draw_rects(grid_start_x, grid_start_y, backdrop_width, backdrop_height, 
-                   figure=SOLUTION, step=True, delay=20, color=LIGHT_GREEN )
+                   figure=SOLUTION, step=True, delay=5, color=LIGHT_GREEN )
         
         pygame.time.wait(7000)
 

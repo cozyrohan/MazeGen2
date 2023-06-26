@@ -66,7 +66,7 @@ def do_prims():
             if grid.square_visited(prev_x, prev_y):
                 grid.space_at(front_x, front_y).set_status('visited')
                 grid.space_at(front_x, front_y).increment_distance_from_prev( grid.space_at(prev_x, prev_y).get_distance_from_start())
-                grid.space_at(front_x, front_y).set_rect_dir(dir)   #direction from frontier to previous square (back tracker)
+                grid.space_at(front_x, front_y).set_rect_dir(dir)   #direction from frontier to previous square (back-tracker)
                 maze.append( (front_x, front_y, dir) )
                 break
 
